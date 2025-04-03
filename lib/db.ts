@@ -36,11 +36,10 @@ async function dbConnect() {
     cached.promise = mongoose
       .connect(MONGODB_URI, opts)
       .then((mongoose) => {
-        console.log("✅ Conectado ao MongoDB!");
         return mongoose;
       })
       .catch((err) => {
-        console.error("❌ Erro ao conectar ao MongoDB:", err);
+        console.error("Erro ao conectar ao MongoDB:", err);
         throw err;
       });
   }

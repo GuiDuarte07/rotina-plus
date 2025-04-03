@@ -34,7 +34,7 @@ export default function DataTypeList() {
   const [isLoading, setIsLoading] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [dataTypeToDelete, setDataTypeToDelete] = useState<string | null>(null)
-  const router = useRouter()
+  /* const router = useRouter() */
 
   useEffect(() => {
     const fetchDataTypes = async () => {
@@ -56,6 +56,7 @@ export default function DataTypeList() {
   }, [])
 
   const handleDelete = async () => {
+    return;
     if (!dataTypeToDelete) return
 
     try {
@@ -86,7 +87,7 @@ export default function DataTypeList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Tipos de Dados</h2>
-        <Button onClick={() => router.push("/data-types/new")}>
+        <Button>
           <Plus className="mr-2 h-4 w-4" /> Novo Tipo de Dado
         </Button>
       </div>
@@ -115,7 +116,7 @@ export default function DataTypeList() {
                     </span>
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => router.push(`/data-types/${dataType._id}`)}>
+                    <Button variant="outline" size="sm" >
                       <Edit className="h-4 w-4 mr-1" /> Editar
                     </Button>
                     <Button
@@ -138,7 +139,7 @@ export default function DataTypeList() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center p-6">
             <p className="text-muted-foreground mb-4">Você ainda não criou nenhum tipo de dado.</p>
-            <Button onClick={() => router.push("/data-types/new")}>
+            <Button>
               <Plus className="mr-2 h-4 w-4" /> Criar Primeiro Tipo de Dado
             </Button>
           </CardContent>

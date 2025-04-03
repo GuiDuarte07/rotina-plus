@@ -6,6 +6,9 @@ import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import DataTypeList from "./data-type-list"
+import EntriesList from "./entries-list"
+import CalendarView from "./calendar-view"
+import { Calendar } from "./ui/calendar"
 
 export default function Dashboard() {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -20,6 +23,7 @@ export default function Dashboard() {
           <Plus className="mr-2 h-4 w-4" /> Novo Tipo de Dado
         </Button>
       </div>
+      <Calendar mode="single"/>
 
       <Tabs defaultValue="calendar" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
@@ -29,13 +33,13 @@ export default function Dashboard() {
           <TabsTrigger value="visualization">Gráficos</TabsTrigger>
         </TabsList>
         <TabsContent value="calendar">
-          {/* <CalendarView selectedDate={date} onDateSelect={setDate} /> */}
+          <CalendarView selectedDate={date} onDateSelect={setDate} />
         </TabsContent>
         <TabsContent value="data-types">
           <DataTypeList />
         </TabsContent>
         <TabsContent value="entries">
-          {/* <EntriesList selectedDate={date} /> */}
+          <EntriesList selectedDate={date} />
         </TabsContent>
         <TabsContent value="visualization">
           {/* <DataVisualization /> */}
