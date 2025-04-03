@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import DataTypeList from "./data-type-list"
 import EntriesList from "./entries-list"
 import CalendarView from "./calendar-view"
-import { Calendar } from "./ui/calendar"
+import DataVisualization from "./data-visualization"
 
 export default function Dashboard() {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -23,7 +23,6 @@ export default function Dashboard() {
           <Plus className="mr-2 h-4 w-4" /> Novo Tipo de Dado
         </Button>
       </div>
-      <Calendar mode="single"/>
 
       <Tabs defaultValue="calendar" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
@@ -42,7 +41,7 @@ export default function Dashboard() {
           <EntriesList selectedDate={date} />
         </TabsContent>
         <TabsContent value="visualization">
-          {/* <DataVisualization /> */}
+          <DataVisualization />
         </TabsContent>
       </Tabs>
     </div>

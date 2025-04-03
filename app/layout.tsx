@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { AppProvider } from "@/lib/context"
 import { ThemeProvider } from "@/components/theme-provider"
+/* import "react-day-picker/style.css"; */
 
 const inter = Inter({ subsets: ["latin"] })
 

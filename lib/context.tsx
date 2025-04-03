@@ -342,11 +342,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Obter entradas por data
   const getEntriesByDate = async (date: Date) => {
     try {
-      const dateStr = date.toISOString().split("T")[0];
-      const startDate = new Date(dateStr);
+      const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
 
-      const endDate = new Date(dateStr);
+      const endDate = new Date(date);
       endDate.setHours(23, 59, 59, 999);
 
       const response = await fetch(

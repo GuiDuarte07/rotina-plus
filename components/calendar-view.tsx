@@ -9,7 +9,15 @@ import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useApp } from "@/lib/context"
-import { CalendarDay } from "react-day-picker"
+
+// Definir o tipo CalendarDay para corresponder ao que o componente Calendar espera
+interface CalendarDay {
+  date: Date
+  day: number
+  isToday: boolean
+  isCurrentMonth: boolean
+  // Pode haver outras propriedades, mas essas são as principais
+}
 
 interface CalendarViewProps {
   selectedDate: Date | undefined
@@ -27,6 +35,7 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
   useEffect(() => {
     const fetchEntriesForSelectedDate = async () => {
       if (selectedDate) {
+        console.log(selectedDate)
         try {
           const entriesForDate = await getEntriesByDate(selectedDate)
           setEntriesForSelectedDate(entriesForDate)
@@ -76,8 +85,9 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
   }, [currentMonth, getEntriesByDateRange])
 
   // Função para renderizar os dias do calendário com indicadores para entradas
-  const renderDay = (day: CalendarDay) => {
-    const dateKey = format(day.date, "yyyy-MM-dd")
+  // Modificada para aceitar um objeto CalendarDay ou Date
+  const renderDay = (day: Date) => {
+    const dateKey = format(day, "yyyy-MM-dd")
     const dayEntries = entriesByDay[dateKey] || []
 
     // Agrupar entradas por tipo de dado
@@ -91,21 +101,22 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
     })
 
     return (
-      <div className="relative w-full h-full">
-        <div>{day.date.getDate()}adsdadasdasdasdas</div>
-        <div className="absolute bottom-0 left-0 right-0 flex flex-wrap gap-1 justify-center">
-          {Object.keys(entriesByType).map((typeId) => {
-            const dataType = dataTypes.find((dt) => dt.id === typeId)
-            return (
-              <div
-                key={typeId}
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: dataType?.color || "#3b82f6" }}
-              />
-            )
-          })}
-        </div>
-      </div>
+      <>
+        {Object.keys(entriesByType).length > 0 && (
+          <div className="flex flex-wrap gap-0.5 justify-center mt-1">
+            {Object.keys(entriesByType).map((typeId) => {
+              const dataType = dataTypes.find((dt) => dt.id === typeId)
+              return (
+                <div
+                  key={typeId}
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: dataType?.color || "#3b82f6" }}
+                />
+              )
+            })}
+          </div>
+        )}
+      </>
     )
   }
 
@@ -115,24 +126,46 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <Card className="md:col-span-2">
         <CardContent className="pt-6">
           <Calendar
             mode="single"
             selected={selectedDate}
             onSelect={onDateSelect}
-            className="rounded-md border"
+            className="rounded-md border w-full"
             locale={ptBR}
             onMonthChange={handleMonthChange}
-            /* components={{
-              Day: ({ day, ...props }) => <div {...props}>{renderDay(day)}</div>,
-            }} */
+            modifiers={{
+              hasEntries: (date) => {
+                const dateKey = format(date, "yyyy-MM-dd")
+                return !!entriesByDay[dateKey]?.length
+              },
+            }}
+            modifiersClassNames={{
+              hasEntries: "font-bold",
+            }}
+            components={{
+              DayContent: (props) => (
+                <div>
+                  <div>{props.date.getDate()}</div>
+                  {renderDay(props.date)}
+                </div>
+              ),
+            }}
+            classNames={{
+              months:
+                "flex w-full flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 flex-1",
+              month: "space-y-4 w-full flex flex-col",
+              table: "w-full h-full border-collapse space-y-1",
+              head_row: "",
+              row: "w-full mt-2",
+            }}
           />
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="md:col-span-2">
         <CardContent className="pt-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -140,12 +173,12 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
                 {selectedDate ? format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR }) : "Selecione uma data"}
               </h3>
               {selectedDate && (
-                <Button size="sm" onClick={() => router.push(`/entries/new?date=${selectedDate.toISOString()}`)}>
+                <Button size="sm" >
                   <Plus className="h-4 w-4 mr-1" /> Adicionar
                 </Button>
               )}
             </div>
-
+            
             {entriesForSelectedDate.length > 0 ? (
               <div className="space-y-2">
                 {entriesForSelectedDate.map((entry) => {
@@ -154,7 +187,7 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
                     <div
                       key={entry.id}
                       className="p-2 border rounded-md cursor-pointer hover:bg-accent"
-                      onClick={() => router.push(`/entries/${entry.id}`)}
+                      onClick={() => true}
                     >
                       <div className="flex items-center gap-2">
                         <div
