@@ -154,11 +154,12 @@ export default function DataVisualization() {
               </div>
             ) : chartData.length > 0 ? (
               <div className="h-[300px] mt-4">
+                {/* CHART */}
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" />
-                    <YAxis />
+                    <YAxis domain={['dataMin - 1', 'dataMax + 1']} />
                     <Tooltip />
                     <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} name={getFieldName()} />
                   </LineChart>

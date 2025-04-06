@@ -65,13 +65,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const userId = "65f1a1b2c3d4e5f6a7b8c9d0";
     /* const userId = session.user.id */
+    const date = new Date(body.date);
+    date.setHours(0, 0, 0, 0);
 
     const entry = new Entry({
       ...body,
       userId,
-      date: new Date(body.date),
+      date,
     });
 
+    //verificar se já tem uma entry nessa data
     await entry.save();
 
     return NextResponse.json(entry, { status: 201 });

@@ -15,6 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useEntryDialog } from "@/hooks/use-entry-dialog"
+import { useDataTypeDialog } from "@/hooks/use-datatype-dialog"
 
 interface DataType {
   _id: string
@@ -34,7 +36,9 @@ export default function DataTypeList() {
   const [isLoading, setIsLoading] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [dataTypeToDelete, setDataTypeToDelete] = useState<string | null>(null)
+  const entryDialog = useEntryDialog()
   /* const router = useRouter() */
+  const datatypeDialog = useDataTypeDialog()
 
   useEffect(() => {
     const fetchDataTypes = async () => {
@@ -56,7 +60,6 @@ export default function DataTypeList() {
   }, [])
 
   const handleDelete = async () => {
-    return;
     if (!dataTypeToDelete) return
 
     try {
@@ -87,9 +90,9 @@ export default function DataTypeList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Tipos de Dados</h2>
-        <Button>
+        {/* <Button>
           <Plus className="mr-2 h-4 w-4" /> Novo Tipo de Dado
-        </Button>
+        </Button> */}
       </div>
 
       {isLoading ? (
@@ -116,7 +119,10 @@ export default function DataTypeList() {
                     </span>
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="outline" size="sm" >
+                    <Button variant="outline" size="sm" onClick={() => entryDialog.openDialog(dataType._id)} >
+                        <Plus className="h-4 w-4 mr-1" /> Novo Registro
+                      </Button>
+                    <Button variant="outline" size="sm" onClick={() => datatypeDialog.openDialog(dataType._id)} >
                       <Edit className="h-4 w-4 mr-1" /> Editar
                     </Button>
                     <Button

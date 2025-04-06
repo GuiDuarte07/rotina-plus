@@ -1,59 +1,30 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import DataTypeList from "./data-type-list"
-import EntriesList from "./entries-list"
-import CalendarView from "./calendar-view"
-import DataVisualization from "./data-visualization"
-import { DataTypeDialog } from "./data-types-dialog"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DataTypeList from "./data-type-list";
+import EntriesList from "./entries-list";
+import CalendarView from "./calendar-view";
+import DataVisualization from "./data-visualization";
+import { DataTypeDialog } from "./data-types-dialog";
+import { useEntryDialog } from "@/hooks/use-entry-dialog";
+import { EntryDialog } from "@/components/entry-dialog";
+import { useDataTypeDialog } from "@/hooks/use-datatype-dialog";
 
 export default function Dashboard() {
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [activeTab, setActiveTab] = useState("calendar")
-  const [dataTypeDialogOpen, setDataTypeDialogOpen] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [activeTab, setActiveTab] = useState("calendar");
+  const entryDialog = useEntryDialog();
+  const dataTypeDialog = useDataTypeDialog();
 
-
-  // Verificar se há um parâmetro na URL para abrir o dialog
-  useEffect(() => {
-    const newDataType = searchParams.get("new-datatype")
-    if (newDataType === "true") {
-      setDataTypeDialogOpen(true)
-    }
-  }, [searchParams])
-
-
-  const openDataTypeDialog = () => {
-    // Atualizar a URL sem recarregar a página
-    const url = new URL(window.location.href)
-    url.searchParams.set("new-datatype", "true")
-    window.history.pushState({}, "", url.toString())
-
-    setDataTypeDialogOpen(true)
-  }
-
-  // Função para fechar o dialog e limpar a URL
-  const handleDialogOpenChange = (open: boolean) => {
-    setDataTypeDialogOpen(open)
-
-    if (!open) {
-      // Remover o parâmetro da URL sem recarregar a página
-      const url = new URL(window.location.href)
-      url.searchParams.delete("new-datatype")
-      window.history.pushState({}, "", url.toString())
-    }
-  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Rotina+</h1>
-        <Button onClick={openDataTypeDialog}>
+        <Button onClick={() => dataTypeDialog.openDialog()}>
           <Plus className="mr-2 h-4 w-4" /> Novo Tipo de Dado
         </Button>
       </div>
@@ -80,9 +51,18 @@ export default function Dashboard() {
       </Tabs>
 
       {/* Dialog para criar/editar tipos de dados */}
-      <DataTypeDialog open={dataTypeDialogOpen} onOpenChange={handleDialogOpenChange} />
-    </div>
-    
-  )
-}
+      <DataTypeDialog
+        open={dataTypeDialog.isOpen}
+        editId={dataTypeDialog.dataTypeId}
+        onOpenChange={dataTypeDialog.closeDialog}
+      />
 
+      {/* Modal de entrada de dados */}
+      <EntryDialog
+        isOpen={entryDialog.isOpen}
+        dataTypeId={entryDialog.dataTypeId}
+        onClose={entryDialog.closeDialog}
+      />
+    </div>
+  );
+}
