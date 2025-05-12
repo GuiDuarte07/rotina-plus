@@ -5,19 +5,9 @@ import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { useApp } from "@/lib/context"
-
-// Definir o tipo CalendarDay para corresponder ao que o componente Calendar espera
-interface CalendarDay {
-  date: Date
-  day: number
-  isToday: boolean
-  isCurrentMonth: boolean
-  // Pode haver outras propriedades, mas essas são as principais
-}
 
 interface CalendarViewProps {
   selectedDate: Date | undefined
@@ -29,7 +19,6 @@ export default function CalendarView({ selectedDate, onDateSelect }: CalendarVie
   const [entriesForSelectedDate, setEntriesForSelectedDate] = useState<any[]>([])
   const [entriesByDay, setEntriesByDay] = useState<Record<string, any[]>>({})
   const [currentMonth, setCurrentMonth] = useState<Date>(selectedDate || new Date())
-  const router = useRouter()
 
   // Atualizar entradas para a data selecionada
   useEffect(() => {

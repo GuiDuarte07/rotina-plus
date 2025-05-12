@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import type { DataType, Entry } from "./types"
 import { toast } from "sonner"
+import { toISODate } from "@/tools/date"
 
 interface AppContextType {
   dataTypes: DataType[]
@@ -366,14 +367,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Obter entradas por data
   const getEntriesByDate = async (date: Date) => {
     try {
-      const dateStr = date.toISOString().split("T")[0]
-      const startDate = new Date(dateStr)
+      const startDate = new Date(date)
       startDate.setHours(0, 0, 0, 0)
 
-      const endDate = new Date(dateStr)
+      const endDate = new Date(date)
       endDate.setHours(23, 59, 59, 999)
 
-      const response = await fetch(`/api/entries?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`)
+      const response = await fetch(`/api/entries?startDate=${toISODate(startDate)}&endDate=${toISODate(endDate)}`)
 
       if (!response.ok) {
         throw new Error("Falha ao buscar entradas por data")
@@ -398,7 +398,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Obter entradas por intervalo de datas
   const getEntriesByDateRange = async (startDate: Date, endDate: Date) => {
     try {
-      const response = await fetch(`/api/entries?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`)
+      const response = await fetch(`/api/entries?startDate=${toISODate(startDate)}&endDate=${toISODate(endDate)}`)
 
       if (!response.ok) {
         throw new Error("Falha ao buscar entradas por intervalo de datas")
