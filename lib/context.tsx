@@ -4,9 +4,15 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import type { DataType, Entry } from "./types"
 import { toast } from "sonner"
-import { toISODate } from "@/tools/date"
+import { useAuth } from "@/hooks/use-auth"
 
 interface AppContextType {
+  // Informações do usuário
+  userId: string | null
+  isAuthenticated: boolean
+  logout: () => Promise<void>
+
+  // Dados da aplicação
   dataTypes: DataType[]
   entries: Entry[]
   addDataType: (dataType: Omit<DataType, "id" | "createdAt">) => Promise<DataType>
@@ -26,31 +32,34 @@ interface AppContextType {
 export const AppContext = createContext<AppContextType | undefined>(undefined)
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const { userId, isAuthenticated, logout, isLoading: authLoading } = useAuth(false)
   const [dataTypes, setDataTypes] = useState<DataType[]>([])
   const [entries, setEntries] = useState<Entry[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Buscar tipos de dados e entradas ao inicializar
+  // Buscar tipos de dados e entradas ao inicializar (apenas se autenticado)
   useEffect(() => {
-    const fetchInitialData = async () => {
-      try {
-        setIsLoading(true)
-        await fetchDataTypes()
-        await fetchEntries()
-      } catch (err) {
-        console.error("Erro ao buscar dados iniciais:", err)
-        setError("Erro ao carregar dados. Por favor, recarregue a página.")
-        toast.error("Erro ao carregar dados", {
-          description: "Por favor, recarregue a página.",
-        })
-      } finally {
-        setIsLoading(false)
+    if (isAuthenticated && userId) {
+      const fetchInitialData = async () => {
+        try {
+          setIsLoading(true)
+          await fetchDataTypes()
+          await fetchEntries()
+        } catch (err) {
+          console.error("Erro ao buscar dados iniciais:", err)
+          setError("Erro ao carregar dados. Por favor, recarregue a página.")
+          toast.error("Erro ao carregar dados", {
+            description: "Por favor, recarregue a página.",
+          })
+        } finally {
+          setIsLoading(false)
+        }
       }
-    }
 
-    fetchInitialData()
-  }, [])
+      fetchInitialData()
+    }
+  }, [isAuthenticated, userId])
 
   // Função para buscar tipos de dados
   const fetchDataTypes = async () => {
@@ -111,6 +120,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Adicionar um novo tipo de dado
   const addDataType = async (dataType: Omit<DataType, "id" | "createdAt">) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       setIsLoading(true)
 
@@ -160,6 +173,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Atualizar um tipo de dado existente
   const updateDataType = async (id: string, dataType: Partial<DataType>) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       setIsLoading(true)
 
@@ -209,6 +226,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Excluir um tipo de dado
   const deleteDataType = async (id: string) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       setIsLoading(true)
 
@@ -243,6 +264,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Adicionar uma nova entrada
   const addEntry = async (entry: Omit<Entry, "id" | "createdAt">) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       setIsLoading(true)
 
@@ -283,6 +308,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Atualizar uma entrada existente
   const updateEntry = async (id: string, entry: Partial<Entry>) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       setIsLoading(true)
 
@@ -333,6 +362,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Excluir uma entrada
   const deleteEntry = async (id: string) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       setIsLoading(true)
 
@@ -366,14 +399,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Obter entradas por data
   const getEntriesByDate = async (date: Date) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
-      const startDate = new Date(date)
+      const dateStr = date.toISOString().split("T")[0]
+      const startDate = new Date(dateStr)
       startDate.setHours(0, 0, 0, 0)
 
-      const endDate = new Date(date)
+      const endDate = new Date(dateStr)
       endDate.setHours(23, 59, 59, 999)
 
-      const response = await fetch(`/api/entries?startDate=${toISODate(startDate)}&endDate=${toISODate(endDate)}`)
+      const response = await fetch(`/api/entries?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`)
 
       if (!response.ok) {
         throw new Error("Falha ao buscar entradas por data")
@@ -397,8 +435,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Obter entradas por intervalo de datas
   const getEntriesByDateRange = async (startDate: Date, endDate: Date) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
-      const response = await fetch(`/api/entries?startDate=${toISODate(startDate)}&endDate=${toISODate(endDate)}`)
+      const response = await fetch(`/api/entries?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`)
 
       if (!response.ok) {
         throw new Error("Falha ao buscar entradas por intervalo de datas")
@@ -422,6 +464,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Obter entradas por tipo de dado
   const getEntriesByDataType = async (dataTypeId: string) => {
+    if (!isAuthenticated) {
+      throw new Error("Usuário não autenticado")
+    }
+
     try {
       const response = await fetch(`/api/entries?dataTypeId=${dataTypeId}`)
 
@@ -448,6 +494,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <AppContext.Provider
       value={{
+        userId,
+        isAuthenticated,
+        logout,
         dataTypes,
         entries,
         addDataType,
@@ -459,7 +508,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         getEntriesByDate,
         getEntriesByDateRange,
         getEntriesByDataType,
-        isLoading,
+        isLoading: isLoading || authLoading,
         error,
       }}
     >
@@ -475,4 +524,3 @@ export function useApp() {
   }
   return context
 }
-

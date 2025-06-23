@@ -2,10 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { AppProvider } from "@/lib/context"
-import { ThemeProvider } from "@/components/theme-provider"
+import { Providers } from "@/components/providers"
 import { Toaster } from "sonner"
-/* import "react-day-picker/style.css"; */
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,13 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body  className={inter.className}>
-        <ThemeProvider  attribute="class" defaultTheme="system" enableSystem>
-          <AppProvider>{children}</AppProvider>
+      <body className={inter.className}>
+        <Providers>
+          {children}
           <Toaster />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )
 }
-
